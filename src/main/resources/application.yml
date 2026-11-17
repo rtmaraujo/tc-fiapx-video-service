@@ -1,0 +1,125 @@
+server:
+  port: 8082
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: tc-fiapx-video-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fiapx_video}
+    username: ${DB_USER:fiapx_video_user}
+    password: ${DB_PASSWORD:fiapx_video_pass}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 10000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:500MB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:520MB}
+      file-size-threshold: 2MB
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_GROUP_ID:fiapx-video-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        max.poll.records: 20
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 1
+        delivery.timeout.ms: 20000
+        request.timeout.ms: 10000
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+      ack-mode: record
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+fiapx:
+  jwt:
+    secret: ${JWT_SECRET:fiapx-dev-secret-key-with-at-least-32-bytes}
+    issuer: ${JWT_ISSUER:fiapx-auth}
+  storage:
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:8333}
+    access-key: ${STORAGE_ACCESS_KEY:fiapx}
+    secret-key: ${STORAGE_SECRET_KEY:fiapx12345}
+    bucket: ${STORAGE_BUCKET:fiapx-videos}
+  video:
+    max-size-bytes: ${VIDEO_MAX_SIZE_BYTES:524288000}
+    pagina-padrao: 20
+    pagina-maxima: 100
+  kafka:
+    topics:
+      solicitado: ${KAFKA_TOPIC_SOLICITADO:fiapx.video.solicitado}
+      processado: ${KAFKA_TOPIC_PROCESSADO:fiapx.video.processado}
+      falha: ${KAFKA_TOPIC_FALHA:fiapx.video.falha}
+  outbox:
+    intervalo-ms: ${OUTBOX_INTERVALO_MS:2000}
+  notificacao:
+    intervalo-ms: ${NOTIFICACAO_INTERVALO_MS:5000}
+  email:
+    remetente: ${MAIL_FROM:nao-responda@fiapx.com}
+    maximo-tentativas: ${MAIL_MAX_TENTATIVAS:5}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE:1.0}
+    export:
+      zipkin:
+        endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+logging:
+  level:
+    com.fiapx.video: ${LOG_LEVEL:INFO}
+    org.springframework.security: WARN
+    org.apache.kafka: WARN
