@@ -35,7 +35,7 @@ jobs:
 
       - name: Publicar relatorio de cobertura
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
           path: target/site/jacoco/
@@ -43,7 +43,7 @@ jobs:
 
       - name: Publicar relatorio do SpotBugs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: spotbugs-report
           path: target/spotbugsXml.xml
