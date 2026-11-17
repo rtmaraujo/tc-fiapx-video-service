@@ -23,12 +23,7 @@
         <jjwt.version>0.13.0</jjwt.version>
         <minio.version>8.5.17</minio.version>
         <jacoco.version>0.8.16</jacoco.version>
-        <sonar.organization>rtmaraujo</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>rtmaraujo_tc-fiapx-video-service</sonar.projectKey>
-        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
+        <spotbugs.version>4.9.3.0</spotbugs.version>
     </properties>
 
     <dependencies>
@@ -190,6 +185,25 @@
                                 </rule>
                             </rules>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>High</threshold>
+                    <failOnError>true</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
