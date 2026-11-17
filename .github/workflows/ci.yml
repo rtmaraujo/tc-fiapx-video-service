@@ -15,10 +15,8 @@ env:
 
 jobs:
   build:
-    name: Build, testes, cobertura e SonarCloud
+    name: Build, testes, cobertura e analise estatica
     runs-on: ubuntu-latest
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,12 +30,8 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build, testes e cobertura (JaCoCo >= 85%)
+      - name: Build, testes, cobertura (JaCoCo >= 85%) e SpotBugs
         run: mvn -B clean verify
-
-      - name: Analise de qualidade (SonarCloud)
-        if: ${{ env.SONAR_TOKEN != '' }}
-        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.qualitygate.wait=true
 
       - name: Publicar relatorio de cobertura
         if: always()
@@ -45,6 +39,14 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
+          retention-days: 7
+
+      - name: Publicar relatorio do SpotBugs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: target/spotbugsXml.xml
           retention-days: 7
 
   docker:
